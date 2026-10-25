@@ -1,0 +1,43 @@
+name: Build AyahStudioNext APK
+
+on:
+workflow_dispatch:
+push:
+branches: [main]
+
+permissions:
+contents: read
+
+jobs:
+build-android:
+runs-on: ubuntu-latest
+steps:
+- name: Check out repository
+uses: actions/checkout@v4
+
+  - name: Set up Flutter
+    uses: subosito/flutter-action@v2
+    with:
+      flutter-version: '3.24.5'
+      channel: stable
+
+  - name: Extract project ZIP
+    run: |
+                unzip -o AyahStudioNext-GitHub-Actions-Setup.zip -d project
+          cp -a project/. .
+
+  - name: Install dependencies
+    run: flutter pub get
+
+  - name: Run tests
+    run: flutter test
+
+  - name: Build APK
+    run: flutter build apk --debug
+
+  - name: Upload APK
+    uses: actions/upload-artifact@v4
+    with:
+      name: AyahStudioNext-debug-apk
+      path: build/app/outputs/flutter-apk/app-debug.apk
+      retention-days: 7
